@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/summaryFooter"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/summaryFooter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:background="#f0f0f0"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textViewTotalSales"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Sales: "
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewTotalDiscount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Discount: "
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewNetTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Net Total: "
+            android:textSize="16sp" />
+    </LinearLayout>
+</RelativeLayout>

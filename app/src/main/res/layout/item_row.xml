@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="8dp">
+
+    <AutoCompleteTextView
+        android:id="@+id/itemAutoComplete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Item"
+        android:inputType="text"
+        android:importantForAccessibility="yes" />
+
+    <EditText
+        android:id="@+id/quantityEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Quantity"
+        android:inputType="number"
+        android:importantForAccessibility="yes" />
+
+    <EditText
+        android:id="@+id/unitPriceEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Price"
+        android:inputType="numberDecimal"
+        android:importantForAccessibility="yes" />
+
+    <EditText
+        android:id="@+id/unitDiscount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Discount"
+        android:inputType="numberDecimal"
+        android:importantForAccessibility="yes" />
+
+    <TextView
+        android:id="@+id/totalPriceTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Total Price"
+        android:text="00.00"
+        android:importantForAccessibility="yes" />
+</LinearLayout>
