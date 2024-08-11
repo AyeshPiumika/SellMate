@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -317,8 +318,9 @@ public class InvoiceActivity extends AppCompatActivity {
         }
     }
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults); // Call super method
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQUEST_WRITE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -329,38 +331,93 @@ public class InvoiceActivity extends AppCompatActivity {
         }
     }
 
-    private void exportToExcel() {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Invoices");
+    // Save Excel File
+    private void saveExcelFile(Context context, String fileName, Workbook workbook) throws IOException {
+        FileOutputStream fileOut = null;
 
-        // Create header row
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Invoice Number");
-        headerRow.createCell(1).setCellValue("Customer");
-        headerRow.createCell(2).setCellValue("Date");
-        headerRow.createCell(4).setCellValue("Discount");
-        headerRow.createCell(5).setCellValue("Total");
-
-        ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
-        int rowIndex = 1;
-        for (Invoice invoice : invoiceList) {
-            Row row = sheet.createRow(rowIndex++);
-            row.createCell(0).setCellValue(invoice.getInvoiceNumber());
-            row.createCell(1).setCellValue(invoice.getCustomerId());
-            row.createCell(2).setCellValue(invoice.getInvoiceDate());
-            row.createCell(4).setCellValue(invoice.getDiscount());
-            row.createCell(5).setCellValue(invoice.getTotalAmount());
-        }
-
-        // Save the Excel file
         try {
-            File file = new File(Environment.getExternalStorageDirectory(), "Invoices.xlsx");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            workbook.write(fileOutputStream);
-            fileOutputStream.close();
-            Toast.makeText(this, "Export successful", Toast.LENGTH_SHORT).show();
+            // Ensure your app has WRITE_EXTERNAL_STORAGE permission
+            File file = new File(context.getExternalFilesDir(null), fileName);
+            fileOut = new FileOutputStream(file);
+            workbook.write(fileOut);
+            Toast.makeText(context, "Excel file saved: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            Toast.makeText(this, "Export failed", Toast.LENGTH_SHORT).show();
+            throw new IOException("Error saving Excel file", e);
+        } finally {
+            if (fileOut != null) {
+                fileOut.close();
+            }
         }
     }
+
+    private void exportToExcel() {
+        Workbook workbook = new XSSFWorkbook();
+
+        // Create Invoice Sheet
+        Sheet invoiceSheet = workbook.createSheet("Invoices");
+        Row invoiceHeaderRow = invoiceSheet.createRow(0);
+        invoiceHeaderRow.createCell(0).setCellValue("Invoice Number");
+        invoiceHeaderRow.createCell(1).setCellValue("Customer Name");
+        invoiceHeaderRow.createCell(2).setCellValue("Invoice Date");
+        invoiceHeaderRow.createCell(3).setCellValue("Total Amount");
+        invoiceHeaderRow.createCell(4).setCellValue("Discount");
+
+        // Create Invoice Items Sheet
+        Sheet invoiceItemSheet = workbook.createSheet("Invoice Items");
+        Row itemHeaderRow = invoiceItemSheet.createRow(0);
+        itemHeaderRow.createCell(0).setCellValue("Invoice Number");
+        itemHeaderRow.createCell(1).setCellValue("Item Name");
+        itemHeaderRow.createCell(2).setCellValue("Quantity");
+        itemHeaderRow.createCell(3).setCellValue("Item Total");
+
+        try {
+            ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
+            int invoiceRowIndex = 1;
+            int itemRowIndex = 1;
+
+            for (Invoice invoice : invoiceList) {
+                String customerName = databaseHelper.getCustomerNameById(invoice.getCustomerId());
+
+                // Populate Invoice Sheet
+                Row invoiceRow = invoiceSheet.createRow(invoiceRowIndex++);
+                invoiceRow.createCell(0).setCellValue(invoice.getInvoiceNumber());
+                invoiceRow.createCell(1).setCellValue(customerName);
+                invoiceRow.createCell(2).setCellValue(invoice.getInvoiceDate());
+                invoiceRow.createCell(3).setCellValue(invoice.getTotalAmount());
+                invoiceRow.createCell(4).setCellValue(invoice.getDiscount());
+
+                ArrayList<InvoiceItem> invoiceItems = databaseHelper.getInvoiceItems(invoice.getId());
+
+                for (InvoiceItem item : invoiceItems) {
+                    String itemName = databaseHelper.getItemNameById(item.getItemId());
+
+                    // Populate Invoice Items Sheet
+                    Row itemRow = invoiceItemSheet.createRow(itemRowIndex++);
+                    itemRow.createCell(0).setCellValue(invoice.getInvoiceNumber());
+                    itemRow.createCell(1).setCellValue(itemName);
+                    itemRow.createCell(2).setCellValue(item.getQuantity());
+                    itemRow.createCell(3).setCellValue(item.getItemTotal());
+                }
+            }
+
+            // Save the Excel file to the device
+            saveExcelFile(this, "Invoices.xlsx", workbook);
+            Toast.makeText(this, "Invoices and items exported successfully.", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error occurred while exporting invoices: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "An unexpected error occurred: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error occurred while closing the workbook: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 }

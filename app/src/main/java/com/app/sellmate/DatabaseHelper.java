@@ -375,4 +375,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return salesman;
     }
+
+    // Get Customer Name by ID
+    public String getCustomerNameById(String customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_CUSTOMER_NAME + " FROM " + TABLE_CUSTOMERS + " WHERE " + COLUMN_CUSTOMER_ID + " = ?", new String[]{customerId});
+        if (cursor != null && cursor.moveToFirst()) {
+            String customerName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_NAME));
+            cursor.close();
+            return customerName;
+        }
+        return null;
+    }
+
+    // Get Item Name by ID
+    public String getItemNameById(String itemId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_ITEM_NAME + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_ITEM_ID + " = ?", new String[]{itemId});
+        if (cursor != null && cursor.moveToFirst()) {
+            String itemName = cursor.getString(cursor.getColumnIndex(COLUMN_ITEM_NAME));
+            cursor.close();
+            return itemName;
+        }
+        return null;
+    }
 }
