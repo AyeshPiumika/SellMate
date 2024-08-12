@@ -185,9 +185,40 @@ public class InvoiceActivity extends AppCompatActivity {
                 totalTextView.setText(String.format("%.2f", total));
 
                 // Save new invoice to database
-                Invoice newInvoice = new Invoice(invoiceNumber, date, customer, subTotal, discountAmount);
-                databaseHelper.addInvoice(newInvoice);
+                Invoice newInvoice = new Invoice(invoiceNumber, date, customer, total, discountAmount);
+                long invoiceId = databaseHelper.addInvoice(newInvoice);
 
+                // Save invoice items to database
+                for (int i = 0; i < itemsContainer.getChildCount(); i++) {
+                    View itemRow = itemsContainer.getChildAt(i);
+                    AutoCompleteTextView itemAutoComplete = itemRow.findViewById(R.id.itemAutoComplete);
+                    EditText quantityEditText = itemRow.findViewById(R.id.quantityEditText);
+                    EditText unitPriceEditText = itemRow.findViewById(R.id.unitPriceEditText);
+                    EditText unitDiscountEditText = itemRow.findViewById(R.id.unitDiscount);
+                    TextView totalPriceTextView = itemRow.findViewById(R.id.totalPriceTextView);
+
+                    String itemName = itemAutoComplete.getText().toString().trim();
+                    int quantity = TextUtils.isEmpty(quantityEditText.getText().toString()) ? 0 : Integer.parseInt(quantityEditText.getText().toString());
+                    double unitPrice = TextUtils.isEmpty(unitPriceEditText.getText().toString()) ? 0 : Double.parseDouble(unitPriceEditText.getText().toString());
+                    double unitDiscount = TextUtils.isEmpty(unitDiscountEditText.getText().toString()) ? 0 : Double.parseDouble(unitDiscountEditText.getText().toString());
+                    double itemTotal = TextUtils.isEmpty(totalPriceTextView.getText().toString()) ? 0 : Double.parseDouble(totalPriceTextView.getText().toString());
+
+                    // Get the item ID from the item name
+                    Item item = databaseHelper.getItemByName(itemName);
+                    if (item != null) {
+                        // Use item.getId() and invoiceId to create InvoiceItem
+                        InvoiceItem invoiceItem = new InvoiceItem(
+                                "", // Placeholder for id or generate an id if necessary
+                                String.valueOf(invoiceId),
+                                item.getId(),
+                                quantity,
+                                itemTotal
+                        );
+                        databaseHelper.addInvoiceItem(invoiceItem);
+                    }
+                }
+
+                // Refresh the invoice list
                 invoices.add(invoiceNumber);
                 invoiceAdapter.notifyDataSetChanged();
                 alertDialog.dismiss();
@@ -356,19 +387,21 @@ public class InvoiceActivity extends AppCompatActivity {
         // Create Invoice Sheet
         Sheet invoiceSheet = workbook.createSheet("Invoices");
         Row invoiceHeaderRow = invoiceSheet.createRow(0);
-        invoiceHeaderRow.createCell(0).setCellValue("Invoice Number");
-        invoiceHeaderRow.createCell(1).setCellValue("Customer Name");
-        invoiceHeaderRow.createCell(2).setCellValue("Invoice Date");
-        invoiceHeaderRow.createCell(3).setCellValue("Total Amount");
-        invoiceHeaderRow.createCell(4).setCellValue("Discount");
+        invoiceHeaderRow.createCell(0).setCellValue("ID");
+        invoiceHeaderRow.createCell(1).setCellValue("Invoice Number");
+        invoiceHeaderRow.createCell(2).setCellValue("Customer Name");
+        invoiceHeaderRow.createCell(3).setCellValue("Invoice Date");
+        invoiceHeaderRow.createCell(4).setCellValue("Total Amount");
+        invoiceHeaderRow.createCell(5).setCellValue("Discount");
 
         // Create Invoice Items Sheet
         Sheet invoiceItemSheet = workbook.createSheet("Invoice Items");
         Row itemHeaderRow = invoiceItemSheet.createRow(0);
-        itemHeaderRow.createCell(0).setCellValue("Invoice Number");
-        itemHeaderRow.createCell(1).setCellValue("Item Name");
-        itemHeaderRow.createCell(2).setCellValue("Quantity");
-        itemHeaderRow.createCell(3).setCellValue("Item Total");
+        itemHeaderRow.createCell(0).setCellValue("ID");
+        itemHeaderRow.createCell(1).setCellValue("Invoice Number");
+        itemHeaderRow.createCell(2).setCellValue("Item Name");
+        itemHeaderRow.createCell(3).setCellValue("Quantity");
+        itemHeaderRow.createCell(4).setCellValue("Item Total");
 
         try {
             ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
@@ -376,27 +409,27 @@ public class InvoiceActivity extends AppCompatActivity {
             int itemRowIndex = 1;
 
             for (Invoice invoice : invoiceList) {
-                String customerName = databaseHelper.getCustomerNameById(invoice.getCustomerId());
 
                 // Populate Invoice Sheet
                 Row invoiceRow = invoiceSheet.createRow(invoiceRowIndex++);
-                invoiceRow.createCell(0).setCellValue(invoice.getInvoiceNumber());
-                invoiceRow.createCell(1).setCellValue(customerName);
-                invoiceRow.createCell(2).setCellValue(invoice.getInvoiceDate());
-                invoiceRow.createCell(3).setCellValue(invoice.getTotalAmount());
-                invoiceRow.createCell(4).setCellValue(invoice.getDiscount());
+                invoiceRow.createCell(0).setCellValue(invoice.getId());
+                invoiceRow.createCell(1).setCellValue(invoice.getInvoiceNumber());
+                invoiceRow.createCell(2).setCellValue(invoice.getCustomerId());
+                invoiceRow.createCell(3).setCellValue(invoice.getInvoiceDate());
+                invoiceRow.createCell(4).setCellValue(invoice.getTotalAmount());
+                invoiceRow.createCell(5).setCellValue(invoice.getDiscount());
 
                 ArrayList<InvoiceItem> invoiceItems = databaseHelper.getInvoiceItems(invoice.getId());
 
                 for (InvoiceItem item : invoiceItems) {
-                    String itemName = databaseHelper.getItemNameById(item.getItemId());
 
                     // Populate Invoice Items Sheet
                     Row itemRow = invoiceItemSheet.createRow(itemRowIndex++);
-                    itemRow.createCell(0).setCellValue(invoice.getInvoiceNumber());
-                    itemRow.createCell(1).setCellValue(itemName);
-                    itemRow.createCell(2).setCellValue(item.getQuantity());
-                    itemRow.createCell(3).setCellValue(item.getItemTotal());
+                    itemRow.createCell(0).setCellValue(item.getId());
+                    itemRow.createCell(1).setCellValue(invoice.getInvoiceNumber());
+                    itemRow.createCell(2).setCellValue(item.getItemId());
+                    itemRow.createCell(3).setCellValue(item.getQuantity());
+                    itemRow.createCell(4).setCellValue(item.getItemTotal());
                 }
             }
 

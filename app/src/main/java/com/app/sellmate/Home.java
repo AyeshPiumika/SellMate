@@ -53,13 +53,13 @@ public class Home extends AppCompatActivity {
                 case 3: // Manage Orders / Invoice Activity
                     startActivity(new Intent(Home.this, InvoiceActivity.class));
                     break;
-                case 4: // Reports
-                    if (isAdmin) {
-                        startActivity(new Intent(Home.this, SummaryReportActivity.class));
-                    } else {
-                        showAccessDenied();
-                    }
-                    break;
+//                case 4: // Reports
+//                    if (isAdmin) {
+//                        startActivity(new Intent(Home.this, SummaryReportActivity.class));
+//                    } else {
+//                        showAccessDenied();
+//                    }
+//                    break;
 //                case 5: // Settings
 //                    if (isAdmin) {
 //                        startActivity(new Intent(Home.this, SettingsActivity.class));

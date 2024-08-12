@@ -150,14 +150,16 @@ public class ItemDetails extends AppCompatActivity {
         Sheet sheet = workbook.createSheet("Items");
 
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Item Name");
-        headerRow.createCell(1).setCellValue("Selling Price");
+        headerRow.createCell(0).setCellValue("Item ID");
+        headerRow.createCell(1).setCellValue("Item Name");
+        headerRow.createCell(2).setCellValue("Selling Price");
 
         int rowNum = 1;
         for (Item item : itemList) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(item.getName());
-            row.createCell(1).setCellValue(item.getSellingPrice());
+            row.createCell(0).setCellValue(item.getId());
+            row.createCell(1).setCellValue(item.getName());
+            row.createCell(2).setCellValue(item.getSellingPrice());
         }
 
         try {

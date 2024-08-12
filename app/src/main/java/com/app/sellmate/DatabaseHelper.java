@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -260,7 +261,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Invoice methods
-    public void addInvoice(Invoice invoice) {
+    public long addInvoice(Invoice invoice) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_INVOICE_NUMBER, invoice.getInvoiceNumber());
@@ -269,7 +270,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SALESMAN_ID_FK, invoice.getSalesmanId());
         values.put(COLUMN_TOTAL_AMOUNT, invoice.getTotalAmount());
         values.put(COLUMN_DISCOUNT, invoice.getDiscount());
-        db.insert(TABLE_INVOICES, null, values);
+        // Insert the new row and get the row ID
+        long id = db.insert(TABLE_INVOICES, null, values);
+        db.close();
+        return id;
+    }
+
+    public void addInvoiceItem(InvoiceItem invoiceItem) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_INVOICE_ID_FK, invoiceItem.getInvoiceId());
+        values.put(COLUMN_ITEM_ID_FK, invoiceItem.getItemId());
+        values.put(COLUMN_QUANTITY, invoiceItem.getQuantity());
+        values.put(COLUMN_ITEM_TOTAL, invoiceItem.getItemTotal());
+        db.insert(TABLE_INVOICE_ITEMS, null, values);
         db.close();
     }
 
@@ -311,6 +325,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return invoiceItems;
+    }
+
+    public Item getItemByName(String itemName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query("items", null, "name = ?", new String[]{itemName}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String id = cursor.getString(cursor.getColumnIndex("id"));
+            String name = cursor.getString(cursor.getColumnIndex("name"));
+            double sellingPrice = cursor.getDouble(cursor.getColumnIndex("sellingPrice"));
+            cursor.close();
+            return new Item(id, name, sellingPrice);
+        }
+        return null;
     }
 
     public ArrayList<Invoice> getAllInvoices() {
@@ -376,27 +404,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return salesman;
     }
 
-    // Get Customer Name by ID
     public String getCustomerNameById(String customerId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COLUMN_CUSTOMER_NAME + " FROM " + TABLE_CUSTOMERS + " WHERE " + COLUMN_CUSTOMER_ID + " = ?", new String[]{customerId});
-        if (cursor != null && cursor.moveToFirst()) {
-            String customerName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_NAME));
-            cursor.close();
-            return customerName;
+        Cursor cursor = null;
+        String customerName = null;
+
+        try {
+            cursor = db.rawQuery("SELECT " + COLUMN_CUSTOMER_NAME + " FROM " + TABLE_CUSTOMERS + " WHERE " + COLUMN_CUSTOMER_ID + " = ?", new String[]{customerId});
+            if (cursor != null && cursor.moveToFirst()) {
+                customerName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_NAME));
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error retrieving customer name for ID " + customerId, e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return null;
+
+        Log.d("DatabaseHelper", "Customer ID: " + customerId + ", Customer Name: " + (customerName != null ? customerName : "Not Found"));
+        return customerName;
     }
 
-    // Get Item Name by ID
-    public String getItemNameById(String itemId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COLUMN_ITEM_NAME + " FROM " + TABLE_ITEMS + " WHERE " + COLUMN_ITEM_ID + " = ?", new String[]{itemId});
-        if (cursor != null && cursor.moveToFirst()) {
-            String itemName = cursor.getString(cursor.getColumnIndex(COLUMN_ITEM_NAME));
-            cursor.close();
-            return itemName;
-        }
-        return null;
-    }
 }
