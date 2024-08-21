@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -90,24 +91,35 @@ public class ItemDetails extends AppCompatActivity {
 
         EditText editItemName = dialog.findViewById(R.id.edit_item_name);
         EditText editSellingPrice = dialog.findViewById(R.id.edit_selling_price);
+        EditText editExistingId = dialog.findViewById(R.id.edit_existing_id);
         Button saveButton = dialog.findViewById(R.id.save_button);
 
         if (item != null) {
             editItemName.setText(item.getName());
             editSellingPrice.setText(String.valueOf(item.getSellingPrice()));
+            editExistingId.setText(item.getExistingid());
         }
 
         saveButton.setOnClickListener(v -> {
             String name = editItemName.getText().toString();
             String sellingPriceStr = editSellingPrice.getText().toString();
-            double sellingPrice = Double.parseDouble(sellingPriceStr);
+            String existingId = editExistingId.getText().toString();
+            double sellingPrice = 0;
+
+            try {
+                sellingPrice = Double.parseDouble(sellingPriceStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(ItemDetails.this, "Invalid price format", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (item == null) {
-                Item newItem = new Item(name, sellingPrice);
+                Item newItem = new Item(name, sellingPrice, existingId);
                 databaseHelper.addItem(newItem);
             } else {
                 item.setName(name);
                 item.setSellingPrice(sellingPrice);
+                item.setExistingid(existingId);
                 databaseHelper.updateItem(item);
             }
             loadItems();
@@ -135,7 +147,8 @@ public class ItemDetails extends AppCompatActivity {
                     if (row.getRowNum() == 0) continue; // Skip header row
                     String name = row.getCell(0).getStringCellValue();
                     double sellingPrice = row.getCell(1).getNumericCellValue();
-                    Item item = new Item(name, sellingPrice);
+                    String existingId = row.getCell(2).getStringCellValue();
+                    Item item = new Item(name, sellingPrice, existingId);
                     databaseHelper.addItem(item);
                 }
                 loadItems();
@@ -153,6 +166,7 @@ public class ItemDetails extends AppCompatActivity {
         headerRow.createCell(0).setCellValue("Item ID");
         headerRow.createCell(1).setCellValue("Item Name");
         headerRow.createCell(2).setCellValue("Selling Price");
+        headerRow.createCell(3).setCellValue("Existing ID");
 
         int rowNum = 1;
         for (Item item : itemList) {
@@ -160,14 +174,15 @@ public class ItemDetails extends AppCompatActivity {
             row.createCell(0).setCellValue(item.getId());
             row.createCell(1).setCellValue(item.getName());
             row.createCell(2).setCellValue(item.getSellingPrice());
+            row.createCell(3).setCellValue(item.getExistingid());
         }
 
         try {
             File file = new File(getExternalFilesDir(null), "items.xlsx");
             try (FileOutputStream outputStream = new FileOutputStream(file)) {
                 workbook.write(outputStream);
-                workbook.close();
             }
+            workbook.close();
             Toast.makeText(this, "Item list downloaded to " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();

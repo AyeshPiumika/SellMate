@@ -48,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Items table columns
     private static final String COLUMN_ITEM_SELLING_PRICE = "sellingPrice";
+    private static final String COLUMN_ITEM_EXISTING_ID = "existingid";
 
     // Invoices table columns
     private static final String COLUMN_INVOICE_ID = COLUMN_ID;
@@ -89,7 +90,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_ITEMS_TABLE = "CREATE TABLE " + TABLE_ITEMS + "("
                 + COLUMN_ITEM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_ITEM_NAME + " TEXT,"
-                + COLUMN_ITEM_SELLING_PRICE + " REAL" + ")";
+                + COLUMN_ITEM_SELLING_PRICE + " REAL,"
+                + COLUMN_ITEM_EXISTING_ID + " TEXT" + ")";
         db.execSQL(CREATE_ITEMS_TABLE);
 
         String CREATE_INVOICES_TABLE = "CREATE TABLE " + TABLE_INVOICES + "("
@@ -224,6 +226,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ITEM_NAME, item.getName());
         values.put(COLUMN_ITEM_SELLING_PRICE, item.getSellingPrice());
+        values.put(COLUMN_ITEM_EXISTING_ID, item.getExistingid());
         db.insert(TABLE_ITEMS, null, values);
         db.close();
     }
@@ -233,6 +236,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ITEM_NAME, item.getName());
         values.put(COLUMN_ITEM_SELLING_PRICE, item.getSellingPrice());
+        values.put(COLUMN_ITEM_EXISTING_ID, item.getExistingid());
         db.update(TABLE_ITEMS, values, COLUMN_ITEM_ID + " = ?", new String[]{String.valueOf(item.getId())});
         db.close();
     }
@@ -252,7 +256,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String id = cursor.getString(cursor.getColumnIndex(COLUMN_ITEM_ID));
                 String name = cursor.getString(cursor.getColumnIndex(COLUMN_ITEM_NAME));
                 double sellingPrice = cursor.getDouble(cursor.getColumnIndex(COLUMN_ITEM_SELLING_PRICE));
-                items.add(new Item(id, name, sellingPrice));
+                String existingid = cursor.getString(cursor.getColumnIndex(COLUMN_ITEM_EXISTING_ID));
+                items.add(new Item(id, name, sellingPrice, existingid));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -335,8 +340,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String id = cursor.getString(cursor.getColumnIndex("id"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
             double sellingPrice = cursor.getDouble(cursor.getColumnIndex("sellingPrice"));
+            String existingid = cursor.getString(cursor.getColumnIndex("existingid"));
             cursor.close();
-            return new Item(id, name, sellingPrice);
+            return new Item(id, name, sellingPrice, existingid);
         }
         return null;
     }

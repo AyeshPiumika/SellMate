@@ -2,24 +2,25 @@ package com.app.sellmate;
 
 import java.io.Serializable;
 
-public class Item implements Serializable{
-    private String id;
+public class Item implements Serializable {
+    private String id; // Optional, not used for uniqueness
     private String name;
     private double sellingPrice;
+    private String existingid; // Unique identifier
 
     // Constructor without ID
-    public Item(String name, double sellingPrice) {
+    public Item(String name, double sellingPrice, String existingid) {
         this.name = name;
         this.sellingPrice = sellingPrice;
-        // Optionally generate a unique ID here
-        this.id = generateUniqueId(); // Assuming you have a method for this
+        this.existingid = existingid;
     }
 
     // Constructor with ID
-    public Item(String id, String name, double sellingPrice) {
+    public Item(String id, String name, double sellingPrice, String existingid) {
         this.id = id;
         this.name = name;
         this.sellingPrice = sellingPrice;
+        this.existingid = existingid;
     }
 
     public String getId() {
@@ -43,11 +44,19 @@ public class Item implements Serializable{
     }
 
     public void setSellingPrice(double sellingPrice) {
-        if (sellingPrice >= 0) { // Example validation
+        if (sellingPrice >= 0) {
             this.sellingPrice = sellingPrice;
         } else {
             throw new IllegalArgumentException("Selling price cannot be negative");
         }
+    }
+
+    public String getExistingid() {
+        return existingid;
+    }
+
+    public void setExistingid(String existingid) {
+        this.existingid = existingid;
     }
 
     @Override
@@ -60,17 +69,11 @@ public class Item implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Item item = (Item) o;
-        return id != null ? id.equals(item.id) : item.id == null;
+        return existingid != null ? existingid.equals(item.existingid) : item.existingid == null;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
-
-    // Optional method to generate a unique ID
-    private String generateUniqueId() {
-        // Implement ID generation logic
-        return "ID_" + System.currentTimeMillis(); // Example
+        return existingid != null ? existingid.hashCode() : 0;
     }
 }

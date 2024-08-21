@@ -19,10 +19,19 @@
         android:text="Selling Price"
         android:textSize="16sp" />
 
+    <TextView
+        android:id="@+id/existing_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/selling_price"
+        android:text="Existing ID"
+        android:textSize="14sp"
+        android:textColor="#888" />
+
     <ImageButton
         android:id="@+id/edit_button"
-        android:layout_width="50sp"
-        android:layout_height="50sp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_marginEnd="8dp"
         android:contentDescription="Edit"
@@ -31,8 +40,8 @@
 
     <ImageButton
         android:id="@+id/delete_button"
-        android:layout_width="50sp"
-        android:layout_height="50sp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_below="@id/edit_button"
         android:layout_alignParentRight="true"
         android:layout_marginEnd="8dp"

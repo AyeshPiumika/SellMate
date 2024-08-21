@@ -106,7 +106,7 @@ public class InvoiceActivity extends AppCompatActivity {
         dateEditText.setText(sdf.format(new Date()));
 
         // Generate invoice number
-        String salesmanId = "123"; // Replace with logged-in salesman ID
+        String salesmanId = "byref"; // Replace with logged-in salesman ID
         String invoiceNumber = generateInvoiceNumber(salesmanId);
         invoiceNumberEditText.setText(invoiceNumber);
         invoiceNumberEditText.setEnabled(false); // Make it not editable
@@ -299,9 +299,12 @@ public class InvoiceActivity extends AppCompatActivity {
     }
 
     private String generateInvoiceNumber(String salesmanId) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd", Locale.getDefault());
-        String datePart = sdf.format(new Date());
-        return salesmanId + datePart + String.format("%04d", invoiceIncrement++);
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+        SimpleDateFormat sdfTime = new SimpleDateFormat("HHmmss", Locale.getDefault());
+        String datePart = sdfDate.format(new Date());
+        String timePart = sdfTime.format(new Date());
+
+        return "INV-" + datePart + "-" + timePart + "-" + salesmanId;
     }
 
     private void calculateTotalPrice(EditText quantityEditText, EditText unitPriceEditText, EditText unitDiscountEditText, TextView totalPriceTextView) {

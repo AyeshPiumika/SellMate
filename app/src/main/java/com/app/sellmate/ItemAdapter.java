@@ -48,6 +48,7 @@ public class ItemAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.itemNameTextView = convertView.findViewById(R.id.item_name);
             holder.sellingPriceTextView = convertView.findViewById(R.id.selling_price);
+            holder.existingIdTextView = convertView.findViewById(R.id.existing_id);
             holder.editButton = convertView.findViewById(R.id.edit_button);
             holder.deleteButton = convertView.findViewById(R.id.delete_button);
             convertView.setTag(holder);
@@ -58,6 +59,7 @@ public class ItemAdapter extends BaseAdapter {
         Item item = itemList.get(position);
         holder.itemNameTextView.setText(item.getName());
         holder.sellingPriceTextView.setText(String.valueOf(item.getSellingPrice()));
+        holder.existingIdTextView.setText(item.getExistingid());
 
         holder.editButton.setOnClickListener(v -> {
             if (context instanceof ItemDetails) {
@@ -85,6 +87,7 @@ public class ItemAdapter extends BaseAdapter {
     private static class ViewHolder {
         TextView itemNameTextView;
         TextView sellingPriceTextView;
+        TextView existingIdTextView;
         ImageButton editButton;
         ImageButton deleteButton;
     }
