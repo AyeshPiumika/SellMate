@@ -5,33 +5,50 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- EditText for Existing ID -->
+    <EditText
+        android:id="@+id/edit_existing_id"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:hint="Existing ID"
+        android:inputType="text" />
+
+    <!-- EditText for Customer Name -->
     <EditText
         android:id="@+id/edit_customer_name"
         android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:hint="Customer Name" />
+        android:hint="Customer Name"
+        android:inputType="textPersonName" />
 
+    <!-- EditText for Contact Number -->
     <EditText
         android:id="@+id/edit_contact_number"
         android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:hint="Contact Number" />
+        android:hint="Contact Number"
+        android:inputType="phone" />
 
+    <!-- EditText for Contact Person Name -->
     <EditText
         android:id="@+id/edit_contact_person_name"
         android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:hint="Contact Person Name" />
+        android:hint="Contact Person Name"
+        android:inputType="textPersonName" />
 
+    <!-- EditText for Address -->
     <EditText
         android:id="@+id/edit_address"
         android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:hint="Address" />
+        android:hint="Address"
+        android:inputType="textPostalAddress" />
 
+    <!-- Save Button -->
     <Button
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"/>
+        android:text="Save" />
 </LinearLayout>

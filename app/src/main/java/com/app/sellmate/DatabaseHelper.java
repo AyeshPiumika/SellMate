@@ -39,6 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CUSTOMER_CONTACT_NUMBER = COLUMN_CONTACT_NUMBER;
     private static final String COLUMN_CUSTOMER_CONTACT_PERSON_NAME = COLUMN_CONTACT_PERSON_NAME;
     private static final String COLUMN_CUSTOMER_ADDRESS = COLUMN_ADDRESS;
+    private static final String COLUMN_CUSTOMER_EXISTING_ID = "existingid";
 
     // Salesmen table columns
     private static final String COLUMN_SALESMAN_ID = COLUMN_ID;
@@ -77,7 +78,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_CUSTOMER_NAME + " TEXT,"
                 + COLUMN_CUSTOMER_CONTACT_NUMBER + " TEXT,"
                 + COLUMN_CUSTOMER_CONTACT_PERSON_NAME + " TEXT,"
-                + COLUMN_CUSTOMER_ADDRESS + " TEXT" + ")";
+                + COLUMN_CUSTOMER_ADDRESS + " TEXT,"
+                + COLUMN_CUSTOMER_EXISTING_ID + " TEXT" + ")";
         db.execSQL(CREATE_CUSTOMERS_TABLE);
 
         String CREATE_SALESMEN_TABLE = "CREATE TABLE " + TABLE_SALESMEN + "("
@@ -135,6 +137,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CUSTOMER_CONTACT_NUMBER, customer.getContactNumber());
         values.put(COLUMN_CUSTOMER_CONTACT_PERSON_NAME, customer.getContactPersonName());
         values.put(COLUMN_CUSTOMER_ADDRESS, customer.getAddress());
+        values.put(COLUMN_CUSTOMER_EXISTING_ID, customer.getExistingid());
         db.insert(TABLE_CUSTOMERS, null, values);
         db.close();
     }
@@ -146,6 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CUSTOMER_CONTACT_NUMBER, customer.getContactNumber());
         values.put(COLUMN_CUSTOMER_CONTACT_PERSON_NAME, customer.getContactPersonName());
         values.put(COLUMN_CUSTOMER_ADDRESS, customer.getAddress());
+        values.put(COLUMN_CUSTOMER_EXISTING_ID, customer.getExistingid());
         db.update(TABLE_CUSTOMERS, values, COLUMN_CUSTOMER_ID + " = ?", new String[]{String.valueOf(customer.getId())});
         db.close();
     }
@@ -167,7 +171,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String contactNumber = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_CONTACT_NUMBER));
                 String contactPersonName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_CONTACT_PERSON_NAME));
                 String address = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_ADDRESS));
-                customers.add(new Customer(id, name, contactNumber, contactPersonName, address));
+                String existingid = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_EXISTING_ID));
+                customers.add(new Customer(id, name, contactNumber, contactPersonName, address, existingid));
             } while (cursor.moveToNext());
         }
         cursor.close();

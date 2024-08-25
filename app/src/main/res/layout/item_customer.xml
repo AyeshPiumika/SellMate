@@ -5,6 +5,15 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
+    <!-- TextView for Existing ID -->
+    <TextView
+        android:id="@+id/existing_id"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/existing_id" />
+
+    <!-- TextView for Customer Name -->
     <TextView
         android:id="@+id/customer_name"
         android:layout_width="0dp"
@@ -12,6 +21,7 @@
         android:layout_weight="1"
         android:text="@string/customer_name" />
 
+    <!-- TextView for Contact Number -->
     <TextView
         android:id="@+id/contact_number"
         android:layout_width="0dp"
@@ -19,6 +29,7 @@
         android:layout_weight="1"
         android:text="@string/contact_number" />
 
+    <!-- Update Button -->
     <ImageButton
         android:id="@+id/update_button"
         android:layout_width="50dp"
@@ -27,6 +38,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_update" />
 
+    <!-- Delete Button -->
     <ImageButton
         android:id="@+id/delete_button"
         android:layout_width="50dp"

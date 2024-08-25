@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -88,6 +89,7 @@ public class CustomerDetails extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_add_customer);
 
+        EditText editExistingId = dialog.findViewById(R.id.edit_existing_id);
         EditText editCustomerName = dialog.findViewById(R.id.edit_customer_name);
         EditText editContactNumber = dialog.findViewById(R.id.edit_contact_number);
         EditText editContactPersonName = dialog.findViewById(R.id.edit_contact_person_name);
@@ -95,6 +97,7 @@ public class CustomerDetails extends AppCompatActivity {
         Button saveButton = dialog.findViewById(R.id.save_button);
 
         if (customer != null) {
+            editExistingId.setText(customer.getExistingid());
             editCustomerName.setText(customer.getName());
             editContactNumber.setText(customer.getContactNumber());
             editContactPersonName.setText(customer.getContactPersonName());
@@ -102,15 +105,17 @@ public class CustomerDetails extends AppCompatActivity {
         }
 
         saveButton.setOnClickListener(v -> {
+            String existingid = editExistingId.getText().toString();
             String name = editCustomerName.getText().toString();
             String contactNumber = editContactNumber.getText().toString();
             String contactPersonName = editContactPersonName.getText().toString();
             String address = editAddress.getText().toString();
 
             if (customer == null) {
-                Customer newCustomer = new Customer(name, contactNumber, contactPersonName, address);
+                Customer newCustomer = new Customer(name, contactNumber, contactPersonName, address, existingid);
                 databaseHelper.addCustomer(newCustomer);
             } else {
+                customer.setExistingid(existingid);
                 customer.setName(name);
                 customer.setContactNumber(contactNumber);
                 customer.setContactPersonName(contactPersonName);
@@ -144,11 +149,12 @@ public class CustomerDetails extends AppCompatActivity {
                 Sheet sheet = workbook.getSheetAt(0);
                 for (Row row : sheet) {
                     if (row.getRowNum() == 0) continue; // Skip header row
-                    String name = row.getCell(0).getStringCellValue();
-                    String contactNumber = row.getCell(1).getStringCellValue();
-                    String contactPersonName = row.getCell(2).getStringCellValue();
-                    String address = row.getCell(3).getStringCellValue();
-                    Customer customer = new Customer(name, contactNumber, contactPersonName, address);
+                    String existingid = row.getCell(0).getStringCellValue();  // Read existingid
+                    String name = row.getCell(1).getStringCellValue();
+                    String contactNumber = row.getCell(2).getStringCellValue();
+                    String contactPersonName = row.getCell(3).getStringCellValue();
+                    String address = row.getCell(4).getStringCellValue();
+                    Customer customer = new Customer(existingid, name, contactNumber, contactPersonName, address);
                     databaseHelper.addCustomer(customer);
                 }
                 loadCustomers();
@@ -163,18 +169,22 @@ public class CustomerDetails extends AppCompatActivity {
         Sheet sheet = workbook.createSheet("Customers");
 
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Customer Name");
-        headerRow.createCell(1).setCellValue("Contact Number");
-        headerRow.createCell(2).setCellValue("Contact Person Name");
-        headerRow.createCell(3).setCellValue("Address");
+        headerRow.createCell(0).setCellValue("Database ID");
+        headerRow.createCell(1).setCellValue("Existing ID");
+        headerRow.createCell(2).setCellValue("Customer Name");
+        headerRow.createCell(3).setCellValue("Contact Number");
+        headerRow.createCell(4).setCellValue("Contact Person Name");
+        headerRow.createCell(5).setCellValue("Address");
 
         int rowNum = 1;
         for (Customer customer : customerList) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(customer.getName());
-            row.createCell(1).setCellValue(customer.getContactNumber());
-            row.createCell(2).setCellValue(customer.getContactPersonName());
-            row.createCell(3).setCellValue(customer.getAddress());
+            row.createCell(0).setCellValue(customer.getId());
+            row.createCell(1).setCellValue(customer.getExistingid());
+            row.createCell(2).setCellValue(customer.getName());
+            row.createCell(3).setCellValue(customer.getContactNumber());
+            row.createCell(4).setCellValue(customer.getContactPersonName());
+            row.createCell(5).setCellValue(customer.getAddress());
         }
 
         try {

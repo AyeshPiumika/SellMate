@@ -33,18 +33,24 @@ public class CustomerAdapter extends ArrayAdapter<Customer> {
 
         Customer customer = customers.get(position);
 
+        // Find the views
+        TextView existingIdTextView = convertView.findViewById(R.id.existing_id);
         TextView nameTextView = convertView.findViewById(R.id.customer_name);
         TextView contactTextView = convertView.findViewById(R.id.contact_number);
         ImageButton updateButton = convertView.findViewById(R.id.update_button);
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
 
+        // Bind data to the views
+        existingIdTextView.setText(customer.getExistingid());
         nameTextView.setText(customer.getName());
         contactTextView.setText(customer.getContactNumber());
 
+        // Handle the update button click
         updateButton.setOnClickListener(v -> {
             ((CustomerDetails) context).showCustomerDialog(customer);
         });
 
+        // Handle the delete button click
         deleteButton.setOnClickListener(v -> {
             CustomerDetails activity = (CustomerDetails) context;
             activity.getDatabaseHelper().deleteCustomer(customer);
