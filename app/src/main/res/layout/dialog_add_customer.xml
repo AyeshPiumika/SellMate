@@ -5,14 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- EditText for Existing ID -->
-    <EditText
-        android:id="@+id/edit_existing_id"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content"
-        android:hint="Existing ID"
-        android:inputType="text" />
-
     <!-- EditText for Customer Name -->
     <EditText
         android:id="@+id/edit_customer_name"
@@ -44,6 +36,14 @@
         android:layout_height="wrap_content"
         android:hint="Address"
         android:inputType="textPostalAddress" />
+
+    <!-- EditText for Existing ID -->
+    <EditText
+        android:id="@+id/edit_existing_id"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:hint="Existing ID"
+        android:inputType="text" />
 
     <!-- Save Button -->
     <Button

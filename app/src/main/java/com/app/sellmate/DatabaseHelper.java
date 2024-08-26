@@ -100,22 +100,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_INVOICE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_INVOICE_NUMBER + " TEXT,"
                 + COLUMN_INVOICE_DATE + " TEXT,"
-                + COLUMN_CUSTOMER_ID_FK + " INTEGER,"
-                + COLUMN_SALESMAN_ID_FK + " INTEGER,"
+                + COLUMN_CUSTOMER_ID_FK + " TEXT,"
+                + COLUMN_SALESMAN_ID_FK + " TEXT,"
                 + COLUMN_TOTAL_AMOUNT + " REAL,"
                 + COLUMN_DISCOUNT + " REAL,"
-                + "FOREIGN KEY(" + COLUMN_CUSTOMER_ID_FK + ") REFERENCES " + TABLE_CUSTOMERS + "(" + COLUMN_CUSTOMER_ID + "),"
+                + "FOREIGN KEY(" + COLUMN_CUSTOMER_ID_FK + ") REFERENCES " + TABLE_CUSTOMERS + "(" + COLUMN_CUSTOMER_EXISTING_ID + "),"
                 + "FOREIGN KEY(" + COLUMN_SALESMAN_ID_FK + ") REFERENCES " + TABLE_SALESMEN + "(" + COLUMN_SALESMAN_ID + "))";
         db.execSQL(CREATE_INVOICES_TABLE);
 
         String CREATE_INVOICE_ITEMS_TABLE = "CREATE TABLE " + TABLE_INVOICE_ITEMS + "("
                 + COLUMN_INVOICE_ITEM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_INVOICE_ID_FK + " INTEGER,"
-                + COLUMN_ITEM_ID_FK + " INTEGER,"
+                + COLUMN_INVOICE_ID_FK + " TEXT,"
+                + COLUMN_ITEM_ID_FK + " TEXT,"
                 + COLUMN_QUANTITY + " INTEGER,"
                 + COLUMN_ITEM_TOTAL + " REAL,"
                 + "FOREIGN KEY(" + COLUMN_INVOICE_ID_FK + ") REFERENCES " + TABLE_INVOICES + "(" + COLUMN_INVOICE_ID + "),"
-                + "FOREIGN KEY(" + COLUMN_ITEM_ID_FK + ") REFERENCES " + TABLE_ITEMS + "(" + COLUMN_ITEM_ID + "))";
+                + "FOREIGN KEY(" + COLUMN_ITEM_ID_FK + ") REFERENCES " + TABLE_ITEMS + "(" + COLUMN_ITEM_EXISTING_ID + "))";
         db.execSQL(CREATE_INVOICE_ITEMS_TABLE);
     }
 

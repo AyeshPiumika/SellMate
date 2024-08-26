@@ -402,7 +402,7 @@ public class InvoiceActivity extends AppCompatActivity {
         Row itemHeaderRow = invoiceItemSheet.createRow(0);
         itemHeaderRow.createCell(0).setCellValue("ID");
         itemHeaderRow.createCell(1).setCellValue("Invoice Number");
-        itemHeaderRow.createCell(2).setCellValue("Item Name");
+        itemHeaderRow.createCell(2).setCellValue("Item ID");
         itemHeaderRow.createCell(3).setCellValue("Quantity");
         itemHeaderRow.createCell(4).setCellValue("Item Total");
 
