@@ -393,18 +393,20 @@ public class InvoiceActivity extends AppCompatActivity {
         invoiceHeaderRow.createCell(0).setCellValue("ID");
         invoiceHeaderRow.createCell(1).setCellValue("Invoice Number");
         invoiceHeaderRow.createCell(2).setCellValue("Customer Name");
-        invoiceHeaderRow.createCell(3).setCellValue("Invoice Date");
-        invoiceHeaderRow.createCell(4).setCellValue("Total Amount");
-        invoiceHeaderRow.createCell(5).setCellValue("Discount");
+        invoiceHeaderRow.createCell(3).setCellValue("Customer Existing ID");
+        invoiceHeaderRow.createCell(4).setCellValue("Invoice Date");
+        invoiceHeaderRow.createCell(5).setCellValue("Total Amount");
+        invoiceHeaderRow.createCell(6).setCellValue("Discount");
 
         // Create Invoice Items Sheet
         Sheet invoiceItemSheet = workbook.createSheet("Invoice Items");
         Row itemHeaderRow = invoiceItemSheet.createRow(0);
         itemHeaderRow.createCell(0).setCellValue("ID");
         itemHeaderRow.createCell(1).setCellValue("Invoice Number");
-        itemHeaderRow.createCell(2).setCellValue("Item ID");
-        itemHeaderRow.createCell(3).setCellValue("Quantity");
-        itemHeaderRow.createCell(4).setCellValue("Item Total");
+        itemHeaderRow.createCell(2).setCellValue("Item Name");
+        itemHeaderRow.createCell(3).setCellValue("Item Existing ID");
+        itemHeaderRow.createCell(4).setCellValue("Quantity");
+        itemHeaderRow.createCell(5).setCellValue("Item Total");
 
         try {
             ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
@@ -413,26 +415,53 @@ public class InvoiceActivity extends AppCompatActivity {
 
             for (Invoice invoice : invoiceList) {
 
+                // Fetch customer-related data
+                Customer customer = databaseHelper.getCustomerById(invoice.getCustomerId());
+                String customerName = "";
+                String customerExistingId = "";
+
+                if (customer != null) {
+                    customerName = customer.getName();
+                    customerExistingId = customer.getExistingid();
+                } else {
+                    // Debugging information
+                    Toast.makeText(this, "Customer not found for Name: " + invoice.getCustomerId(), Toast.LENGTH_SHORT).show();
+                }
+
                 // Populate Invoice Sheet
                 Row invoiceRow = invoiceSheet.createRow(invoiceRowIndex++);
                 invoiceRow.createCell(0).setCellValue(invoice.getId());
                 invoiceRow.createCell(1).setCellValue(invoice.getInvoiceNumber());
-                invoiceRow.createCell(2).setCellValue(invoice.getCustomerId());
-                invoiceRow.createCell(3).setCellValue(invoice.getInvoiceDate());
-                invoiceRow.createCell(4).setCellValue(invoice.getTotalAmount());
-                invoiceRow.createCell(5).setCellValue(invoice.getDiscount());
+                invoiceRow.createCell(2).setCellValue(customerName); // Use the fetched customer name
+                invoiceRow.createCell(3).setCellValue(customerExistingId); // Use the fetched customer existing ID
+                invoiceRow.createCell(4).setCellValue(invoice.getInvoiceDate());
+                invoiceRow.createCell(5).setCellValue(invoice.getTotalAmount());
+                invoiceRow.createCell(6).setCellValue(invoice.getDiscount());
 
                 ArrayList<InvoiceItem> invoiceItems = databaseHelper.getInvoiceItems(invoice.getId());
 
                 for (InvoiceItem item : invoiceItems) {
+                    // Fetch item-related data
+                    Item itemData = databaseHelper.getItemById(item.getItemId());
+                    String itemName = "";
+                    String itemExistingId = "";
+
+                    if (itemData != null) {
+                        itemName = itemData.getName();
+                        itemExistingId = itemData.getExistingid();
+                    } else {
+                        // Debugging information
+                        Toast.makeText(this, "Item not found for ID: " + item.getItemId(), Toast.LENGTH_SHORT).show();
+                    }
 
                     // Populate Invoice Items Sheet
                     Row itemRow = invoiceItemSheet.createRow(itemRowIndex++);
                     itemRow.createCell(0).setCellValue(item.getId());
                     itemRow.createCell(1).setCellValue(invoice.getInvoiceNumber());
-                    itemRow.createCell(2).setCellValue(item.getItemId());
-                    itemRow.createCell(3).setCellValue(item.getQuantity());
-                    itemRow.createCell(4).setCellValue(item.getItemTotal());
+                    itemRow.createCell(2).setCellValue(itemName); // Use the fetched item name
+                    itemRow.createCell(3).setCellValue(itemExistingId); // Use the fetched item existing ID
+                    itemRow.createCell(4).setCellValue(item.getQuantity());
+                    itemRow.createCell(5).setCellValue(item.getItemTotal());
                 }
             }
 

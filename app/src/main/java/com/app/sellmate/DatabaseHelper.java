@@ -79,7 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_CUSTOMER_CONTACT_NUMBER + " TEXT,"
                 + COLUMN_CUSTOMER_CONTACT_PERSON_NAME + " TEXT,"
                 + COLUMN_CUSTOMER_ADDRESS + " TEXT,"
-                + COLUMN_CUSTOMER_EXISTING_ID + " TEXT" + ")";
+                + COLUMN_CUSTOMER_EXISTING_ID + " TEXT UNIQUE" + ")";
         db.execSQL(CREATE_CUSTOMERS_TABLE);
 
         String CREATE_SALESMEN_TABLE = "CREATE TABLE " + TABLE_SALESMEN + "("
@@ -93,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_ITEM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_ITEM_NAME + " TEXT,"
                 + COLUMN_ITEM_SELLING_PRICE + " REAL,"
-                + COLUMN_ITEM_EXISTING_ID + " TEXT" + ")";
+                + COLUMN_ITEM_EXISTING_ID + " TEXT UNIQUE" + ")";
         db.execSQL(CREATE_ITEMS_TABLE);
 
         String CREATE_INVOICES_TABLE = "CREATE TABLE " + TABLE_INVOICES + "("
@@ -435,6 +435,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.d("DatabaseHelper", "Customer ID: " + customerId + ", Customer Name: " + (customerName != null ? customerName : "Not Found"));
         return customerName;
+    }
+
+    public Customer getCustomerById(String customerName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Customer customer = null;
+
+        // Use COLUMN_CUSTOMER_EXISTING_ID instead of COLUMN_CUSTOMER_ID
+        Cursor cursor = db.query(TABLE_CUSTOMERS, null, COLUMN_CUSTOMER_NAME + " = ?", new String[]{customerName}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_ID));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_NAME));
+            String contactNumber = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_CONTACT_NUMBER));
+            String contactPersonName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_CONTACT_PERSON_NAME));
+            String address = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_ADDRESS));
+            String existingid = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CUSTOMER_EXISTING_ID));
+
+            customer = new Customer(id, name, contactNumber, contactPersonName, address, existingid);
+            cursor.close();
+        } else {
+            Log.e("DatabaseHelper", "Customer not found for Name: " + customerName);
+        }
+
+        db.close();
+        return customer;
+    }
+
+    public Item getItemById(String itemId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Item item = null;
+        Cursor cursor = db.query("items", null, "id = ?", new String[]{itemId}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            double sellingPrice = cursor.getDouble(cursor.getColumnIndexOrThrow("sellingPrice"));
+            String existingid = cursor.getString(cursor.getColumnIndexOrThrow("existingid"));
+
+            // Use the correct constructor
+            item = new Item(id, name, sellingPrice, existingid);
+            cursor.close();
+        }
+
+        return item;
     }
 
 }
