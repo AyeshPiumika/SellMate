@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean isAdminCredentials(String contactNumber, String nicNumber) {
-        return "0000".equals(contactNumber) && "root".equals(nicNumber);
+        return "0703552754".equals(contactNumber) && "Buddhika123".equals(nicNumber);
     }
 
     private void loginAsAdmin() {

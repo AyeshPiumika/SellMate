@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/edit_contact_number"
         android:layout_marginTop="16dp"
-        android:hint="NIC Number"
+        android:hint="Password or NIC Number"
         android:inputType="text" />
 
     <Button

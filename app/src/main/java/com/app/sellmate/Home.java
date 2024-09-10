@@ -2,7 +2,7 @@ package com.app.sellmate;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.AdapterView;
+import android.util.Log;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -25,7 +25,11 @@ public class Home extends AppCompatActivity {
         GridAdapter adapter = new GridAdapter(Home.this, gridItems, gridImages);
         gridView.setAdapter(adapter);
 
+        // Retrieve the isAdmin value from the Intent
         isAdmin = getIntent().getBooleanExtra("isAdmin", false);
+
+        // Logging for debugging purposes
+        Log.d("HomeActivity", "isAdmin: " + isAdmin);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> handleItemClick(position));
     }
