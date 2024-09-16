@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,12 +26,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import android.app.DatePickerDialog;
+import android.widget.DatePicker;
 
 public class InvoiceActivity extends AppCompatActivity {
 
@@ -42,6 +47,9 @@ public class InvoiceActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_PERMISSION = 786;
     private int invoiceIncrement = 1; // This should be managed in the database
 
+    private Button filterButton;
+    private String startDate = "", endDate = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +59,12 @@ public class InvoiceActivity extends AppCompatActivity {
         invoiceListView = findViewById(R.id.invoiceListView);
         fab = findViewById(R.id.fab);
         ImageButton exportButton = findViewById(R.id.exportButton);
+        filterButton = findViewById(R.id.filterButton);
 
         invoices = new ArrayList<>();
         invoiceAdapter = new InvoiceAdapter(this, invoices);
         invoiceListView.setAdapter(invoiceAdapter);
+        filterButton.setOnClickListener(v -> showDateRangePicker());
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,11 +80,60 @@ public class InvoiceActivity extends AppCompatActivity {
             }
         });
 
-        loadInvoicesForToday();
+        loadInvoicesForLastMonth(); // Load invoices for the last month
     }
 
-    private void loadInvoicesForToday() {
-        ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
+    private void showDateRangePicker() {
+        // Show date picker dialogs for start and end dates
+        DatePickerDialog startDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, dayOfMonth);
+            startDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
+            showEndDatePicker(); // Show end date picker after selecting start date
+        }, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+
+        startDatePicker.show();
+    }
+
+    private void showEndDatePicker() {
+        DatePickerDialog endDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, dayOfMonth);
+            endDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
+            filterInvoicesByDateRange(); // Filter invoices after selecting end date
+        }, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+
+        endDatePicker.show();
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void filterInvoicesByDateRange() {
+        if (!TextUtils.isEmpty(startDate) && !TextUtils.isEmpty(endDate)) {
+            ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesByDateRange(startDate, endDate);
+            invoices.clear();
+            for (Invoice invoice : invoiceList) {
+                invoices.add(invoice.getInvoiceNumber());
+            }
+            invoiceAdapter.notifyDataSetChanged();
+        } else {
+            showToast("Please select both start and end dates.");
+        }
+    }
+
+//    private void loadInvoicesForToday() {
+//        ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
+//        invoices.clear();
+//        for (Invoice invoice : invoiceList) {
+//            invoices.add(invoice.getInvoiceNumber());
+//        }
+//        invoiceAdapter.notifyDataSetChanged();
+//    }
+
+    private void loadInvoicesForLastMonth() {
+        ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForLastMonth();
         invoices.clear();
         for (Invoice invoice : invoiceList) {
             invoices.add(invoice.getInvoiceNumber());
@@ -226,6 +285,12 @@ public class InvoiceActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
+    }
+
+    private String getSalesmanId() {
+        // Assuming you store the salesman ID in SharedPreferences after login
+        SharedPreferences prefs = getSharedPreferences("SalesmanPrefs", MODE_PRIVATE);
+        return prefs.getString("salesmanId", "defaultId"); // Replace "defaultId" with a fallback ID if needed
     }
 
     private void setupCustomerAutoComplete(AutoCompleteTextView customerAutoComplete) {
@@ -407,9 +472,10 @@ public class InvoiceActivity extends AppCompatActivity {
         itemHeaderRow.createCell(3).setCellValue("Item Existing ID");
         itemHeaderRow.createCell(4).setCellValue("Quantity");
         itemHeaderRow.createCell(5).setCellValue("Item Total");
+        itemHeaderRow.createCell(6).setCellValue("Item's Sold Price");
 
         try {
-            ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesForToday();
+            ArrayList<Invoice> invoiceList = databaseHelper.getInvoicesByDateRange(startDate, endDate);
             int invoiceRowIndex = 1;
             int itemRowIndex = 1;
 
@@ -462,6 +528,9 @@ public class InvoiceActivity extends AppCompatActivity {
                     itemRow.createCell(3).setCellValue(itemExistingId); // Use the fetched item existing ID
                     itemRow.createCell(4).setCellValue(item.getQuantity());
                     itemRow.createCell(5).setCellValue(item.getItemTotal());
+                    // Calculate the Sold Item Price (Item Total / Quantity)
+                    double soldItemPrice = item.getQuantity() != 0 ? item.getItemTotal() / item.getQuantity() : 0;
+                    itemRow.createCell(6).setCellValue(soldItemPrice);
                 }
             }
 

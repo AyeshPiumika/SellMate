@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -297,11 +298,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<Invoice> getInvoicesForToday() {
+//    public ArrayList<Invoice> getInvoicesForToday() {
+//        ArrayList<Invoice> invoices = new ArrayList<>();
+//        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_INVOICES + " WHERE " + COLUMN_INVOICE_DATE + " = ?", new String[]{todayDate});
+//        if (cursor.moveToFirst()) {
+//            do {
+//                String id = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_ID));
+//                String invoiceNumber = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_NUMBER));
+//                String date = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_DATE));
+//                String customerId = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_ID_FK));
+//                String salesmanId = cursor.getString(cursor.getColumnIndex(COLUMN_SALESMAN_ID_FK));
+//                double totalAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_TOTAL_AMOUNT));
+//                double discount = cursor.getDouble(cursor.getColumnIndex(COLUMN_DISCOUNT));
+//                invoices.add(new Invoice(id, invoiceNumber, date, customerId, salesmanId, totalAmount, discount));
+//            } while (cursor.moveToNext());
+//        }
+//        cursor.close();
+//        db.close();
+//        return invoices;
+//    }
+
+    public ArrayList<Invoice> getInvoicesForLastMonth() {
         ArrayList<Invoice> invoices = new ArrayList<>();
-        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_INVOICES + " WHERE " + COLUMN_INVOICE_DATE + " = ?", new String[]{todayDate});
+
+        // Get current date and date one month ago
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String currentDate = sdf.format(new Date());
+
+        // Use Calendar to get the date one month ago
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        String oneMonthAgoDate = sdf.format(calendar.getTime());
+
+        // Query to fetch invoices between one month ago and today
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_INVOICES + " WHERE " + COLUMN_INVOICE_DATE + " BETWEEN ? AND ?", new String[]{oneMonthAgoDate, currentDate});
+
         if (cursor.moveToFirst()) {
             do {
                 String id = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_ID));
@@ -314,6 +348,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 invoices.add(new Invoice(id, invoiceNumber, date, customerId, salesmanId, totalAmount, discount));
             } while (cursor.moveToNext());
         }
+
         cursor.close();
         db.close();
         return invoices;
@@ -479,6 +514,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return item;
+    }
+
+    public ArrayList<Invoice> getInvoicesByDateRange(String startDate, String endDate) {
+        ArrayList<Invoice> invoices = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Query to fetch invoices between the specified dates
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_INVOICES + " WHERE " + COLUMN_INVOICE_DATE + " BETWEEN ? AND ?", new String[]{startDate, endDate});
+
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_ID));
+                String invoiceNumber = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_NUMBER));
+                String date = cursor.getString(cursor.getColumnIndex(COLUMN_INVOICE_DATE));
+                String customerId = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOMER_ID_FK));
+                String salesmanId = cursor.getString(cursor.getColumnIndex(COLUMN_SALESMAN_ID_FK));
+                double totalAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_TOTAL_AMOUNT));
+                double discount = cursor.getDouble(cursor.getColumnIndex(COLUMN_DISCOUNT));
+                invoices.add(new Invoice(id, invoiceNumber, date, customerId, salesmanId, totalAmount, discount));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return invoices;
     }
 
 }
